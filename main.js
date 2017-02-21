@@ -8,11 +8,13 @@
 		this.game_over = false;
 		this.bars = [];
 		this.ball = null;
+		this.playing = false;
 	}
 
 	self.Board.prototype = {
 		get elements(){
-			var elements = this.bars;
+			var elements = this.bars.map(function(bar){ 
+				return bar; });
 			elements.push(this.ball);
 			return elements;
 		}
@@ -28,9 +30,18 @@
 		this.speed_y = 0;
 		this.speed_x = 3;
 		this.board = board;
+		this.direction = 1;
 
 		board.ball = this;
-		this.kind = "circle";
+		this.kind = "circle";		
+	}
+
+	//Método para que la pelota se mueva
+	self.Ball.prototype = {
+		move: function(){	
+			this.x += (this.speed_x * this.direction);
+			this.y += (this.speed_y);
+		}
 	}
 })();
 
@@ -82,8 +93,11 @@
 			};
 		},
 		play: function(){
+			if(this.board.playing){
 			this.clean();
 			this.draw();
+			this.board.ball.move();
+			}
 		}
 	}
 
@@ -113,30 +127,42 @@ var ball = new Ball(350,100,10,board);
 window.requestAnimationFrame(controller);
 
 document.addEventListener("keydown",function(ev){
-	ev.preventDefault();
 	//Flecha arriba
 	if (ev.keyCode == 87) {
+		ev.preventDefault();
 		bar.up();
 	}
 	//Flecha abajo
 	else if (ev.keyCode == 83){
+		ev.preventDefault();
 		bar.down();
 	}
 	//W
 	else if (ev.keyCode == 38){
+		ev.preventDefault();
 		bar_2.up();
 	}
 	//S
 	else if (ev.keyCode == 40){
+		ev.preventDefault();
 		bar_2.down();
+	}
+	//Pausar con barra espaciadora
+	else if(ev.keyCode == 32){
+		ev.preventDefault();
+		board.playing = !board.playing;
 	}
 
 });
 
 
 //CONTROLADOR
-window.requestAnimationFrame(controller);
+board_view.draw();
 
+window.requestAnimationFrame(controller);
+setTimeout(function(){
+	ball.direction = -1;
+},4000);
 function controller(){	
 	board_view.play();
 	window.requestAnimationFrame(controller);
